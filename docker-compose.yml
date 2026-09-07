@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # Client PWA (React.js)
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: agriintel-client
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000/api
+      - REACT_APP_WS_URL=http://localhost:5000
+    depends_on:
+      - server
+    networks:
+      - agriintel-network
+
+  # Main Express.js API Gateway
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: agriintel-server
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/agriintel}
+      - JWT_SECRET=${JWT_SECRET:-dev_super_secret_jwt_key_12345}
+      - ML_SERVICE_URL=http://ml-service:8001
+      - RAG_SERVICE_URL=http://rag-service:8002
+    depends_on:
+      - mongodb
+      - ml-service
+      - rag-service
+    networks:
+      - agriintel-network
+
+  # Core ML Microservice (FastAPI)
+  ml-service:
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+    container_name: agriintel-ml-service
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - ENVIRONMENT=development
+    networks:
+      - agriintel-network
+
+  # RAG & Voice Microservice (FastAPI + Chroma)
+  rag-service:
+    build:
+      context: ./rag-service
+      dockerfile: Dockerfile
+    container_name: agriintel-rag-service
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - CHROMA_PERSIST_DIR=/app/chroma_db
+    volumes:
+      - chroma_data:/app/chroma_db
+    networks:
+      - agriintel-network
+
+  # Local MongoDB for offline dev (or use MongoDB Atlas)
+  mongodb:
+    image: mongo:6.0
+    container_name: agriintel-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - agriintel-network
+
+networks:
+  agriintel-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  chroma_data:

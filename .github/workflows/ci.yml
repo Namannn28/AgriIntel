@@ -1,0 +1,62 @@
+name: AgriIntel CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-server:
+    name: Test Express API Gateway
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: server/package.json
+      - name: Install Dependencies
+        run: cd server && npm ci || npm install
+      - name: Run Server Tests
+        run: cd server && npm test
+
+  test-ml-service:
+    name: Test ML Microservice
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install Dependencies
+        run: |
+          cd ml-service
+          python -m pip install --upgrade pip
+          pip install flake8 pytest httpx fastapi
+      - name: Lint Code
+        run: |
+          cd ml-service
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+  test-rag-service:
+    name: Test RAG Microservice
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install Dependencies
+        run: |
+          cd rag-service
+          python -m pip install --upgrade pip
+          pip install flake8 pytest httpx fastapi
+      - name: Lint Code
+        run: |
+          cd rag-service
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
