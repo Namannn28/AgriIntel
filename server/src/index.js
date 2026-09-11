@@ -4,6 +4,17 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 require('dotenv').config();
 
+const authRoutes = require('./routes/auth');
+const listingsRoutes = require('./routes/listings');
+const ordersRoutes = require('./routes/orders');
+const jobsRoutes = require('./routes/jobs');
+const workersRoutes = require('./routes/workers');
+const subsidiesRoutes = require('./routes/subsidies');
+const mlProxyRoutes = require('./routes/mlProxy');
+const ragProxyRoutes = require('./routes/ragProxy');
+const weatherRoutes = require('./routes/weather');
+const adminRoutes = require('./routes/admin');
+
 const app = express();
 const server = http.createServer(app);
 
@@ -17,8 +28,8 @@ const io = new Server(server, {
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health Check Endpoint
 app.get('/health', (req, res) => {
@@ -32,11 +43,35 @@ app.get('/health', (req, res) => {
 // Root API Endpoint
 app.get('/api', (req, res) => {
   res.json({
-    message: 'Welcome to AgriIntel API Gateway',
+    name: 'AgriIntel API Gateway',
     version: '1.0.0',
-    documentation: '/api/docs'
+    description: 'AI-Integrated Digital Platform for Farmer Empowerment',
+    endpoints: {
+      auth: '/api/auth',
+      listings: '/api/listings',
+      orders: '/api/orders',
+      jobs: '/api/jobs',
+      workers: '/api/workers',
+      subsidies: '/api/subsidies',
+      ml: '/api/ml',
+      rag: '/api/rag',
+      weather: '/api/weather',
+      admin: '/api/admin'
+    }
   });
 });
+
+// Mount Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/listings', listingsRoutes);
+app.use('/api/orders', ordersRoutes);
+app.use('/api/jobs', jobsRoutes);
+app.use('/api/workers', workersRoutes);
+app.use('/api/subsidies', subsidiesRoutes);
+app.use('/api/ml', mlProxyRoutes);
+app.use('/api/rag', ragProxyRoutes);
+app.use('/api/weather', weatherRoutes);
+app.use('/api/admin', adminRoutes);
 
 // WebSocket Connection Management
 io.on('connection', (socket) => {
@@ -49,7 +84,10 @@ io.on('connection', (socket) => {
 
   socket.on('send_message', (data) => {
     // Broadcast to room
-    io.to(data.roomId).emit('receive_message', data);
+    io.to(data.roomId).emit('receive_message', {
+      ...data,
+      timestamp: new Date().toISOString()
+    });
   });
 
   socket.on('disconnect', () => {
