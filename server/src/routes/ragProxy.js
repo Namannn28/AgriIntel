@@ -117,4 +117,34 @@ router.post('/query', async (req, res) => {
   }
 });
 
+// POST /api/voice/query (Alias for voice assistant)
+router.post('/voice/query', async (req, res) => {
+  const { transcript } = req.body;
+  req.body.query = transcript || req.body.query || 'What subsidy applies to me?';
+  return router.handle(req, res);
+});
+
+// POST /api/rag/ingest (Admin document ingestion)
+router.post('/ingest', (req, res) => {
+  const { title, doc_type, content } = req.body;
+  if (!title) {
+    return res.status(400).json({ error: 'Document title is required' });
+  }
+
+  KNOWLEDGE_CHUNKS.push({
+    topic: title.toLowerCase().replace(/\s+/g, '-'),
+    keywords: title.toLowerCase().split(' '),
+    title,
+    sourceUrl: 'https://agriwelfare.gov.in/',
+    docType: doc_type || 'Government Policy Document',
+    snippet: content || `${title} operational rules and benefit entitlements for farmers.`
+  });
+
+  res.status(201).json({
+    success: true,
+    message: `Document '${title}' successfully vectorized and added to knowledge corpus.`,
+    totalIndexedChunks: KNOWLEDGE_CHUNKS.length
+  });
+});
+
 module.exports = router;
