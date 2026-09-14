@@ -18,7 +18,10 @@ async function testAll() {
     '/api/weather?district=sehore',
     '/api/admin/stats',
     '/api/admin/disease-heatmap',
-    '/api/admin/price-trends'
+    '/api/admin/price-trends',
+    '/api/chat/order-crop-101/messages',
+    '/api/reviews/user/farmer-1',
+    '/api/notifications'
   ];
 
   console.log('Testing GET endpoints:');
