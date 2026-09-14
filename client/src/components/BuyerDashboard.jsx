@@ -11,9 +11,11 @@ import {
   ArrowRight,
   ShieldCheck,
   Package,
-  Wrench
+  Wrench,
+  MessageCircle
 } from 'lucide-react';
 import axios from 'axios';
+import ChatModal from './ChatModal';
 
 export default function BuyerDashboard({ user }) {
   const [activeTab, setActiveTab] = useState('marketplace'); // 'marketplace' | 'orders' | 'inputs'
@@ -29,6 +31,9 @@ export default function BuyerDashboard({ user }) {
   const [deliveryAddress, setDeliveryAddress] = useState('Apex Food Processing Ltd, Industrial Area, Bhopal');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutSuccess, setCheckoutSuccess] = useState(null);
+
+  // Chat Modal State
+  const [chatTarget, setChatTarget] = useState(null);
 
   const fetchMarketplace = async () => {
     try {
