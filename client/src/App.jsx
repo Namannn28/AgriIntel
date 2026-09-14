@@ -8,6 +8,7 @@ import WorkerDashboard from './components/WorkerDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import AuthModal from './components/AuthModal';
 import AssistantDrawer from './components/AssistantDrawer';
+import NotificationModal from './components/NotificationModal';
 import { Sprout, ShieldCheck, Heart, Code2 } from 'lucide-react';
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
 
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   // Sync role change with user persona
   const handleRoleChange = (newRole) => {
@@ -93,6 +95,7 @@ export default function App() {
         onOpenAuth={() => setIsAuthOpen(true)}
         onToggleAssistant={() => setIsAssistantOpen(!isAssistantOpen)}
         isAssistantOpen={isAssistantOpen}
+        onOpenNotifications={() => setIsNotificationsOpen(true)}
       />
 
       {/* Main Container */}
@@ -147,6 +150,12 @@ export default function App() {
         isOpen={isAssistantOpen}
         onClose={() => setIsAssistantOpen(false)}
         user={user}
+      />
+
+      {/* Agro-Alerts & Notification Modal */}
+      <NotificationModal
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
       />
 
     </div>
