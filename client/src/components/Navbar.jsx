@@ -8,7 +8,8 @@ import {
   Briefcase, 
   LayoutDashboard,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Bell
 } from 'lucide-react';
 
 export default function Navbar({ 
@@ -17,7 +18,8 @@ export default function Navbar({
   user, 
   onOpenAuth, 
   onToggleAssistant, 
-  isAssistantOpen 
+  isAssistantOpen,
+  onOpenNotifications 
 }) {
   const roles = [
     { id: 'farmer', label: 'Farmer (किसान)', icon: Sprout, color: 'text-emerald-600' },
@@ -100,6 +102,16 @@ export default function Navbar({
                   <span className="font-semibold">Verify eKYC</span>
                 </>
               )}
+            </button>
+
+            {/* Notification Bell */}
+            <button
+              onClick={onOpenNotifications}
+              className="relative p-2 rounded-xl text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+              title="Agro-Alerts & Notifications"
+            >
+              <Bell className="h-4.5 w-4.5" />
+              <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white" />
             </button>
 
             {/* AI Farmer Assistant Button */}
