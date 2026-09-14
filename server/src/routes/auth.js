@@ -127,6 +127,24 @@ router.get('/me', (req, res) => {
   }
 });
 
+// Update User Profile
+router.put('/me', (req, res) => {
+  const { name, state, district, landSizeAcres, cropsGrown, userId } = req.body;
+  let user = USERS.find(u => u.id === (userId || 'farmer-1')) || USERS[0];
+
+  user.name = name || user.name;
+  user.state = state || user.state;
+  user.district = district || user.district;
+  if (landSizeAcres) user.landSizeAcres = Number(landSizeAcres);
+  if (cropsGrown) user.cropsGrown = cropsGrown;
+
+  res.json({
+    success: true,
+    message: 'User profile updated',
+    user
+  });
+});
+
 // Simulated Aadhaar eKYC
 router.post('/aadhaar/simulate', (req, res) => {
   const { aadhaarNumber, otp, userId } = req.body;
