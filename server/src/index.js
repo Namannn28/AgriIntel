@@ -14,6 +14,9 @@ const mlProxyRoutes = require('./routes/mlProxy');
 const ragProxyRoutes = require('./routes/ragProxy');
 const weatherRoutes = require('./routes/weather');
 const adminRoutes = require('./routes/admin');
+const chatRoutes = require('./routes/chat');
+const reviewsRoutes = require('./routes/reviews');
+const notificationsRoutes = require('./routes/notifications');
 
 const app = express();
 const server = http.createServer(app);
@@ -72,6 +75,9 @@ app.use('/api/ml', mlProxyRoutes);
 app.use('/api/rag', ragProxyRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/reviews', reviewsRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 // WebSocket Connection Management
 io.on('connection', (socket) => {
