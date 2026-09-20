@@ -84,8 +84,8 @@ router.get('/crop/:id/price-comparison', (req, res) => {
 router.post('/crop', (req, res) => {
   const { farmerId, farmerName, farmerPhone, cropName, variety, quantity, unit, askingPrice, state, district, description, image } = req.body;
 
-  if (!cropName || !quantity || !askingPrice) {
-    return res.status(400).json({ error: 'Crop name, quantity, and asking price are required' });
+  if (!cropName || !quantity || !askingPrice || isNaN(Number(quantity)) || isNaN(Number(askingPrice)) || Number(quantity) <= 0 || Number(askingPrice) <= 0) {
+    return res.status(400).json({ error: 'Valid crop name, positive numeric quantity, and asking price are required' });
   }
 
   // Find matching MSP
