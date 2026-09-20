@@ -73,6 +73,7 @@ app.use('/api/workers', workersRoutes);
 app.use('/api/subsidies', subsidiesRoutes);
 app.use('/api/ml', mlProxyRoutes);
 app.use('/api/rag', ragProxyRoutes);
+app.use('/api/voice', ragProxyRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/chat', chatRoutes);
