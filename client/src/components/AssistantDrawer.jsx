@@ -9,7 +9,8 @@ import {
   User, 
   ExternalLink, 
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -24,6 +25,7 @@ export default function AssistantDrawer({ isOpen, onClose, user }) {
   const [inputQuery, setInputQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState(null);
   const messagesEndRef = useRef(null);
 
   const sampleQuestions = [
@@ -46,7 +48,8 @@ export default function AssistantDrawer({ isOpen, onClose, user }) {
   const handleVoiceInput = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('Speech Recognition is not supported by your browser. Please try Chrome, Edge, or Safari.');
+      setVoiceError('Speech Recognition is not supported by your browser. Please try Chrome, Edge, or Safari.');
+      setTimeout(() => setVoiceError(null), 5000);
       return;
     }
 
@@ -62,6 +65,7 @@ export default function AssistantDrawer({ isOpen, onClose, user }) {
 
       recognition.onstart = () => {
         setIsListening(true);
+        setVoiceError(null);
       };
 
       recognition.onresult = (event) => {
@@ -73,6 +77,8 @@ export default function AssistantDrawer({ isOpen, onClose, user }) {
       recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
+        setVoiceError(`Microphone notice: ${event.error}. Please check mic permissions.`);
+        setTimeout(() => setVoiceError(null), 4000);
       };
 
       recognition.onend = () => {
@@ -263,6 +269,12 @@ export default function AssistantDrawer({ isOpen, onClose, user }) {
 
       {/* Input Bar */}
       <div className="p-3 border-t border-slate-200 bg-white">
+        {voiceError && (
+          <div className="mb-2 p-2 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800 flex items-center gap-1.5">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+            <span>{voiceError}</span>
+          </div>
+        )}
         <form
           onSubmit={(e) => {
             e.preventDefault();
