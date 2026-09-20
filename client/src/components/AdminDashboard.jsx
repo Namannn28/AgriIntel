@@ -7,7 +7,8 @@ import {
   FileText, 
   Activity,
   Layers,
-  Database
+  Database,
+  RefreshCw
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -54,9 +55,19 @@ export default function AdminDashboard() {
           </div>
           <p className="text-xs text-slate-500 mt-0.5">Real-time health monitoring of farmer transactions, disease outbreaks, and price stability</p>
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-          <Activity className="h-4 w-4 text-emerald-600" />
-          <span>Platform Uptime: <strong>{stats?.platformUptimePct || 99.9}%</strong></span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchAdminData}
+            disabled={loading}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-colors"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 text-purple-600 ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh Analytics</span>
+          </button>
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+            <Activity className="h-4 w-4 text-emerald-600" />
+            <span>Platform Uptime: <strong>{stats?.platformUptimePct || 99.9}%</strong></span>
+          </div>
         </div>
       </div>
 
