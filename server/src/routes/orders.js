@@ -31,9 +31,27 @@ router.post('/', (req, res) => {
     return res.status(404).json({ error: 'Crop listing not found' });
   }
 
-  const orderQuantity = Number(quantity) || 1;
+  const orderQuantity = Number(quantity);
+  if (!orderQuantity || isNaN(orderQuantity) || orderQuantity <= 0) {
+    return res.status(400).json({ error: 'Valid positive order quantity is required' });
+  }
+
+  if (listing.quantity !== undefined && orderQuantity > listing.quantity) {
+    return res.status(400).json({
+      error: `Requested quantity (${orderQuantity}) exceeds available farm stock (${listing.quantity} ${listing.unit})`
+    });
+  }
+
   const unitPrice = agreedPrice || listing.askingPrice;
   const totalAmount = orderQuantity * unitPrice;
+
+  // Deduct purchased quantity from listing inventory
+  if (listing.quantity !== undefined) {
+    listing.quantity = Math.max(0, listing.quantity - orderQuantity);
+    if (listing.quantity === 0) {
+      listing.status = 'SOLD_OUT';
+    }
+  }
 
   const newOrder = {
     id: `ord-${Date.now()}`,
