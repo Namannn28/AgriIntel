@@ -219,7 +219,7 @@ export default function BuyerDashboard({ user }) {
                   </div>
                 </div>
 
-                <div className="p-4 pt-0">
+                <div className="p-4 pt-0 space-y-2">
                   <button
                     onClick={() => {
                       setCheckoutListing(item);
@@ -229,6 +229,16 @@ export default function BuyerDashboard({ user }) {
                   >
                     <CreditCard className="h-3.5 w-3.5" />
                     Buy Direct with Escrow Protection
+                  </button>
+                  <button
+                    onClick={() => setChatTarget({
+                      contextId: `listing-${item.id}`,
+                      title: `Negotiation: ${item.cropName} (Farmer ${item.farmerName})`
+                    })}
+                    className="w-full py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5 text-slate-500" />
+                    Negotiate Rate / Chat
                   </button>
                 </div>
               </div>
@@ -283,9 +293,20 @@ export default function BuyerDashboard({ user }) {
                     </div>
                   </div>
 
-                  <div className="text-xs text-slate-500 flex items-center justify-between pt-2">
-                    <span>Pickup Date: <strong>{order.pickupDate}</strong></span>
-                    <span>Destination: <strong>{order.deliveryAddress}</strong></span>
+                  <div className="text-xs text-slate-500 flex flex-col sm:flex-row sm:items-center justify-between pt-2 gap-2">
+                    <div>
+                      <span>Pickup: <strong>{order.pickupDate}</strong></span> • <span>Destination: <strong>{order.deliveryAddress}</strong></span>
+                    </div>
+                    <button
+                      onClick={() => setChatTarget({
+                        contextId: `order-${order.id}`,
+                        title: `Order #${order.id} Support (${order.cropName})`
+                      })}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 text-blue-600 hover:text-blue-800 font-semibold text-xs"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      Order Chat & Support
+                    </button>
                   </div>
                 </div>
               ))}
@@ -314,9 +335,13 @@ export default function BuyerDashboard({ user }) {
               </div>
               <div className="p-4 pt-0">
                 <button
-                  onClick={() => alert(`Inquiry sent to ${inp.sellerName}`)}
-                  className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors"
+                  onClick={() => setChatTarget({
+                    contextId: `input-${inp.id}`,
+                    title: `Equipment Inquiry: ${inp.itemName} (${inp.sellerName})`
+                  })}
+                  className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
                 >
+                  <MessageCircle className="h-3.5 w-3.5" />
                   Contact Equipment Provider
                 </button>
               </div>
@@ -407,6 +432,16 @@ export default function BuyerDashboard({ user }) {
           </div>
         </div>
       )}
+
+      {/* Direct Negotiation / Provider Chat Modal */}
+      <ChatModal
+        isOpen={!!chatTarget}
+        onClose={() => setChatTarget(null)}
+        contextId={chatTarget?.contextId}
+        contextTitle={chatTarget?.title}
+        senderId={user?.id || 'buyer-1'}
+        senderName={user?.name || 'Amit Agrotech Mills'}
+      />
 
     </div>
   );
