@@ -46,18 +46,21 @@ router.get('/user/:id', (req, res) => {
 router.post('/', (req, res) => {
   const { contextType, contextId, fromUserId, fromUserName, toUserId, rating, comment } = req.body;
 
-  if (!toUserId || !rating) {
-    return res.status(400).json({ error: 'toUserId and rating are required' });
+  const targetId = toUserId || req.body.targetUserId;
+  const numRating = Number(rating);
+
+  if (!targetId || !numRating || isNaN(numRating) || numRating < 1 || numRating > 5) {
+    return res.status(400).json({ error: 'Valid toUserId/targetUserId and numeric rating between 1 and 5 are required' });
   }
 
   const newReview = {
     id: `rev-${Date.now()}`,
     contextType: contextType || 'order',
     contextId: contextId || 'general',
-    fromUserId: fromUserId || 'anonymous',
-    fromUserName: fromUserName || 'Verified Farmer',
-    toUserId,
-    rating: Number(rating),
+    fromUserId: fromUserId || req.body.reviewerId || 'anonymous',
+    fromUserName: fromUserName || req.body.reviewerName || 'Verified Farmer',
+    toUserId: targetId,
+    rating: numRating,
     comment: comment || 'Smooth transaction',
     createdAt: new Date().toISOString()
   };
