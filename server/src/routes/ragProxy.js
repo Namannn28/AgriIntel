@@ -49,23 +49,16 @@ const KNOWLEDGE_CHUNKS = [
   }
 ];
 
-// POST /api/rag/query
-router.post('/query', async (req, res) => {
-  const { query, language = 'en', user_state, farmer_category } = req.body;
-
-  if (!query) {
-    return res.status(400).json({ error: 'Query string is required' });
-  }
-
+async function executeRagQuery(query, language = 'en') {
   const startTime = Date.now();
 
   // Try calling Python RAG microservice if online
   try {
-    const response = await axios.post(`${RAG_SERVICE_URL}/rag/query`, req.body, { timeout: 3000 });
-    return res.json(response.data);
+    const response = await axios.post(`${RAG_SERVICE_URL}/rag/query`, { query, language }, { timeout: 3000 });
+    return response.data;
   } catch (err) {
     // Fallback: Grounded Keyword Semantic Matcher
-    const q = query.toLowerCase();
+    const q = (query || '').toLowerCase();
     let bestMatch = null;
     let highestScore = 0;
 
@@ -99,7 +92,7 @@ router.post('/query', async (req, res) => {
 
     const latencyMs = Date.now() - startTime + 85;
 
-    res.json({
+    return {
       query,
       answer: generatedAnswer,
       citations: [
@@ -113,15 +106,30 @@ router.post('/query', async (req, res) => {
       retrievalScore: highestScore > 0 ? 0.92 : 0.81,
       latency_ms: latencyMs,
       groundedSource: 'AgriIntel In-Memory Vector & Policy Corpus'
-    });
+    };
   }
+}
+
+// POST /api/rag/query or /api/voice/query
+router.post('/query', async (req, res) => {
+  const query = req.body?.query || req.body?.audioText || req.body?.transcript;
+  if (!query) {
+    return res.status(400).json({ error: 'Query string is required' });
+  }
+
+  const result = await executeRagQuery(query, req.body?.language);
+  res.json(result);
 });
 
-// POST /api/voice/query (Alias for voice assistant)
+// POST /api/voice/query
 router.post('/voice/query', async (req, res) => {
-  const { transcript } = req.body;
-  req.body.query = transcript || req.body.query || 'What subsidy applies to me?';
-  return router.handle(req, res);
+  const query = req.body?.audioText || req.body?.transcript || req.body?.query;
+  if (!query) {
+    return res.status(400).json({ error: 'Query or transcript string is required' });
+  }
+
+  const result = await executeRagQuery(query, req.body?.language);
+  res.json(result);
 });
 
 // POST /api/rag/ingest (Admin document ingestion)
