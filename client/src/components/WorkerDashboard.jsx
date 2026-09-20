@@ -8,7 +8,8 @@ import {
   Star, 
   UserCheck,
   Send,
-  SlidersHorizontal
+  SlidersHorizontal,
+  AlertCircle
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -19,6 +20,7 @@ export default function WorkerDashboard({ user }) {
   const [appliedJobIds, setAppliedJobIds] = useState(new Set());
   const [applyingJobId, setApplyingJobId] = useState(null);
   const [statusMessage, setStatusMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   // Profile Form State
   const [name, setName] = useState('Jagdish Mandloi');
@@ -77,7 +79,8 @@ export default function WorkerDashboard({ user }) {
         setTimeout(() => setStatusMessage(null), 3000);
       }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to apply.');
+      setErrorMessage(err.response?.data?.error || 'Failed to apply for this job.');
+      setTimeout(() => setErrorMessage(null), 4000);
     } finally {
       setApplyingJobId(null);
     }
@@ -139,6 +142,13 @@ export default function WorkerDashboard({ user }) {
         <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           <span>{statusMessage}</span>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="p-3 bg-rose-50 text-rose-800 border border-rose-200 rounded-xl text-xs font-semibold flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 text-rose-600" />
+          <span>{errorMessage}</span>
         </div>
       )}
 
