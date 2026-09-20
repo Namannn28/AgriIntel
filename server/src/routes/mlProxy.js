@@ -31,7 +31,7 @@ router.post('/disease-detect', upload.single('file'), async (req, res) => {
   }
 
   // Fallback: Smart local disease inference engine
-  const requestedCrop = req.body.cropHint || 'Tomato';
+  const requestedCrop = req.body?.cropHint || req.query?.cropHint || 'Tomato';
   const found = DISEASE_KNOWLEDGE_BASE.find(d => d.crop.toLowerCase() === requestedCrop.toLowerCase()) || DISEASE_KNOWLEDGE_BASE[0];
 
   res.json({
@@ -40,6 +40,7 @@ router.post('/disease-detect', upload.single('file'), async (req, res) => {
     confidence: found.confidence,
     symptoms: found.symptoms,
     treatment: found.treatment,
+    chemicalTreatment: found.treatment,
     prevention: found.prevention,
     inferenceMode: 'AgriIntel Edge Agronomy Engine (MobileNetV2 Transfer Learning)'
   });
@@ -90,6 +91,7 @@ router.post('/price-forecast', async (req, res) => {
       predicted_trend: currentTrend,
       forecast_days: Number(forecast_days),
       forecast_series: forecastSeries,
+      forecast: forecastSeries,
       inferenceMode: 'AgriIntel Time-Series Prophet Baseline'
     });
   }
@@ -126,6 +128,7 @@ router.post('/crop-recommend', async (req, res) => {
 
     res.json({
       recommended_crop: recommended,
+      recommendedCrop: recommended,
       confidence: 0.93,
       suitable_alternatives: alternatives,
       agronomicSummary: `Based on your soil N-P-K levels (${nitrogen}-${phosphorus}-${potassium}) and rainfall (${rainfall}mm), ${recommended} offers the highest yield and profit margin.`,
