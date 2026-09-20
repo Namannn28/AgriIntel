@@ -28,8 +28,8 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   const { farmerId, farmerName, taskType, crop, wageOffered, workersNeeded, startDate, endDate, state, district, locationName } = req.body;
 
-  if (!taskType || !wageOffered || !workersNeeded) {
-    return res.status(400).json({ error: 'Task type, wage, and workers needed are required' });
+  if (!taskType || !wageOffered || !workersNeeded || isNaN(Number(wageOffered)) || isNaN(Number(workersNeeded)) || Number(wageOffered) <= 0 || Number(workersNeeded) <= 0) {
+    return res.status(400).json({ error: 'Valid task type, positive wage, and positive workers needed are required' });
   }
 
   const newJob = {
@@ -106,6 +106,12 @@ router.put('/:id/applicants/:workerId', (req, res) => {
   }
 
   applicant.status = status || applicant.status;
+
+  // If sufficient workers are hired, mark job as FILLED
+  const hiredCount = job.applicants.filter(a => a.status === 'HIRED').length;
+  if (hiredCount >= job.workersNeeded) {
+    job.status = 'FILLED';
+  }
 
   res.json({
     success: true,
