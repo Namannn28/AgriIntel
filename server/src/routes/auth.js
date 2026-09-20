@@ -156,11 +156,11 @@ router.post('/aadhaar/simulate', (req, res) => {
     });
   }
 
-  // Accept OTP 123456 or any 6-digit number
-  if (!otp || otp.length !== 6) {
+  // Accept OTP 123456 or valid 6-digit number (reject simulated bad OTP 000000)
+  if (!otp || otp.length !== 6 || otp === '000000') {
     return res.status(400).json({
       success: false,
-      error: 'Please enter a valid 6-digit OTP (hint: use 123456 for instant simulation).'
+      error: 'Invalid or expired OTP. Please enter a valid 6-digit OTP (hint: use 123456 for instant simulation).'
     });
   }
 
