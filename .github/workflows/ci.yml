@@ -1,0 +1,86 @@
+name: AgriIntel CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-server:
+    name: Test Express API Gateway & All Modules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: server/package.json
+      - name: Install Server Dependencies
+        run: |
+          cd server
+          npm ci || npm install
+      - name: Run Full 39-Assertion Module Test Suite
+        run: |
+          cd server
+          node test_all_modules.js
+
+  build-client:
+    name: Build React PWA Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: client/package.json
+      - name: Install Client Dependencies
+        run: |
+          cd client
+          npm ci || npm install
+      - name: Build Production Bundle
+        run: |
+          cd client
+          npm run build
+
+  test-ml-service:
+    name: Test Python ML Microservice
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install Dependencies
+        run: |
+          cd ml-service
+          python -m pip install --upgrade pip
+          pip install flake8 pytest httpx fastapi pydantic
+      - name: Syntax & Import Check
+        run: |
+          cd ml-service
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+  test-rag-service:
+    name: Test Python RAG Microservice
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install Dependencies
+        run: |
+          cd rag-service
+          python -m pip install --upgrade pip
+          pip install flake8 pytest httpx fastapi pydantic
+      - name: Syntax & Import Check
+        run: |
+          cd rag-service
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
