@@ -116,7 +116,11 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`[AgriIntel Gateway] Running on port ${PORT}`);
-});
+if (require.main === module || !process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => {
+    console.log(`[AgriIntel Gateway] Running on port ${PORT}`);
+  });
+}
+
+module.exports = { app, server };
